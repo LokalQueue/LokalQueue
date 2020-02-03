@@ -8,5 +8,10 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "passport": "^0.4.1",
+    "passport-spotify": "^1.1.0",
+    "mdns-server": "^1.0.8"
+  }
 }
