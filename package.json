@@ -12,6 +12,7 @@
   "dependencies": {
     "passport": "^0.4.1",
     "passport-spotify": "^1.1.0",
-    "mdns-server": "^1.0.8"
+    "multicast-dns": "^7.2.1",
+    "ip": "^1.1.5"
   }
 }
