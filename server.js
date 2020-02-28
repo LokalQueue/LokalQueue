@@ -27,7 +27,7 @@ app.get('/login', function(req, res) {
 
     var state = generateRandomString(16);
     res.cookie(stateKey, state);
-    var scope = 'user-read-private user-read-email playlist-modify-private streaming';
+    var scope = 'user-read-private user-read-email playlist-modify-private streaming user-modify-playback-state';
     res.redirect('https://accounts.spotify.com/authorize?' +
         querystring.stringify({
             response_type: 'code',

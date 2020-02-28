@@ -11,7 +11,8 @@
     "mongoose": "^5.9.1",
     "querystring": "~0.2.0",
     "request": "~2.83.0",
-    "spotify-web-api-js": "^1.2.0"
+    "spotify-web-api-js": "^1.2.0",
+    "spotify-web-api-node": "^4.0.0"
   },
   "devDependencies": {
     "morgan": "^1.9.1",
