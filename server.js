@@ -10,6 +10,9 @@ var client_id = 'd2591b78a7a0430a9b402fc46dc06343';
 var client_secret = '282942a74b724a9eb277ebb5d94ae7ac';
 var redirect_uri = 'http://localhost:8888/callback/';
 var app = express();
+var tokenuse = null;
+let did =[];
+let playing = false;
 var generateRandomString = function(length) {
     var text = '';
     var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -69,6 +72,7 @@ app.get('/callback', function(req, res) {
 
                 var access_token = body.access_token,
                     refresh_token = body.refresh_token;
+                tokenuse = access_token;
 
                 var options = {
                     url: 'https://api.spotify.com/v1/me',
@@ -120,14 +124,104 @@ app.get('/refresh_token', function(req, res) {
         }
     });
 });
+app.get('/play', function(req, res){
+    var play = {
+        url: 'https://api.spotify.com/v1/me/player/pause?device_id'+
+            querystring.stringify({
+                device_id: window.getDeviceid
+                }),
+
+
+    }
+});
+app.get('/pause',function (req,res) {
+
+});
+app.get('/start',function (req,res) {
+    if(songs.length>0) {
+        playing = true;
+        let show = did[0];
+        let s = songs[0];
+        var option = {
+            url: 'https://api.spotify.com/v1/me/player/play?device_id=' + show.did,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + tokenuse,
+            },
+            json: {uris: ["spotify:track:"+s.id]}
+
+        }
+        request.put(option, function (error, response, body) {
+            if (error) {
+                console.log(error);
+            }
+        });
+        if(songs.length>1){
+            let i= 1;
+            while(songs.length>i){
+                let s2= songs[i];
+                var option2 = {
+                    url: "https://api.spotify.com/v1/me/player/add-to-queue?uri=spotify:track:"+s2.id+"&device_id="+show.did,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + tokenuse,
+                    }
+                }
+                request.post(option2,function (error,response,body) {
+                    if(error){
+                        console.log(error);
+                    }
+                });
+                i++;
+            }
+        }
+    }
+    else{
+        console.log("There is no song added");
+    }
+});
 app.use(bodyParser.urlencoded({extend:false}));
 app.use(bodyParser.json());
 app.post('/song',function (req,res) {
-    console.log(req.body);
-    var SongId = req.body;
-    songs.push(SongId);
-    res.send("Added Id");
+    if(playing == false) {
+        console.log(req.body);
+        var SongId = req.body;
+        songs.push(SongId);
+        res.send("Added Id");
+    }
+    else{
+        let show = did[0];
+        let s = req.body.id;
+        var option = {
+            url: "https://api.spotify.com/v1/me/player/add-to-queue?uri=spotify:track:"+s+"&device_id="+show.did,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + tokenuse,
+            }
+        }
+        request.post(option,function (error,response,body) {
+            if(error){
+                console.log(error);
+            }
+        });
+        res.send("Added in while playing");
+        songs.push(req.body)
+    }
 });
+app.post('/did',function (req,res) {
+    if(did.length<1) {
+        console.log(req.body);
+        var d = req.body;
+        did.push(d);
+        res.send("Playback Ready");
+    }
+});
+app.get('/getdid',function (req,res) {
+    res.json(did);
+})
 app.get('/songs',function (req,res) {
     res.json(songs);
 });
