@@ -6,13 +6,14 @@ var querystring = require ('querystring');
 var cookieParser = require('cookie-parser');
 const fs = require('fs');
 let songs = [];
-var client_id = 'd2591b78a7a0430a9b402fc46dc06343';
-var client_secret = '282942a74b724a9eb277ebb5d94ae7ac';
+var client_id = '6460035cffcb46ba9ded3329c1e37775';
+var client_secret = 'ed651de623fa4722997307262f752c8c';
 var redirect_uri = 'http://localhost:8888/callback/';
 var app = express();
 var tokenuse = null;
 let did =[];
 let playing = false;
+
 var generateRandomString = function(length) {
     var text = '';
     var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -30,7 +31,7 @@ app.get('/login', function(req, res) {
 
     var state = generateRandomString(16);
     res.cookie(stateKey, state);
-    var scope = 'user-read-private user-read-email playlist-modify-private streaming user-modify-playback-state';
+    var scope = 'user-read-private user-read-email playlist-modify-private streaming user-modify-playback-state user-read-playback-state';
     res.redirect('https://accounts.spotify.com/authorize?' +
         querystring.stringify({
             response_type: 'code',
@@ -124,18 +125,39 @@ app.get('/refresh_token', function(req, res) {
         }
     });
 });
-app.get('/play', function(req, res){
-    var play = {
-        url: 'https://api.spotify.com/v1/me/player/pause?device_id'+
-            querystring.stringify({
-                device_id: window.getDeviceid
-                }),
+app.put('/rateup/:id',function (req,res) {
+    var idx = 0;
+    let id = req.params.id;
+    console.log(id);
+    while(idx<did.length){
+        console.log(songs[idx].id);
 
-
+        if(songs[idx].id == id){
+            var rate =songs[idx].rating;
+            console.log(rate);
+            var up = rate+1;
+            songs[idx].rating = up;
+        }
+        idx++;
     }
+    res.send("Rated up")
 });
-app.get('/pause',function (req,res) {
+app.put('/ratedown/:id',function (req,res) {
+    var idx = 0;
+    let id = req.params.id;
+    console.log(id);
+    while(idx<did.length){
+        console.log(songs[idx].id);
 
+        if(songs[idx].id == id){
+            var rate =songs[idx].rating;
+            console.log(rate);
+            var up = rate-1;
+            songs[idx].rating = up;
+        }
+        idx++;
+    }
+    res.send("Rated down")
 });
 app.get('/start',function (req,res) {
     if(songs.length>0) {
@@ -190,6 +212,8 @@ app.post('/song',function (req,res) {
         var SongId = req.body;
         songs.push(SongId);
         res.send("Added Id");
+        
+
     }
     else{
         let show = did[0];
