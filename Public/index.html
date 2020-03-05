@@ -39,10 +39,62 @@
         <button id="next">Next</button>
         <button id="previous">Previous</button>
       </dt>
-
     </dl>
+    <table id="queue">
+    </table>
+
   </div>
 </div>
+
+<script>
+  let songslength = 0;
+  let inter = setInterval(fetchSongs, 5000);
+
+function fetchSongs(){
+  let songs = loadSongs();
+}
+const loadSongs = () =>{
+  const  xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function(){
+    if(this.readyState==4 && this.status == 200 ){
+      const  songs = JSON.parse(xhttp.responseText);
+      if(songs.length>songslength) {
+        songslength = songs.length;
+        let par = document.getElementById("queue").querySelectorAll(".songs");
+        if(par !== null && par.length > 0)
+          par.forEach(n => n.remove());
+        for(let song in songs) {
+          let row = document.createElement("tr");
+          let d1 = document.createElement("td");
+          let d2 = document.createElement("td");
+          let d3 = document.createElement("td");
+          let bt = document.createElement("button");
+          bt.innerText = "Delete";
+          d1.appendChild(bt);
+          d2.innerText = "Song: "+ songs[song].id;
+          d3.innerText = ",Rating:  "+ songs[song].rating;
+          row.classList.add("songs");
+          row.id = songs[song].id;
+          row.appendChild(d1);
+          row.appendChild(d2);
+          row.appendChild(d3);
+          bt.addEventListener('click',function () {
+            $.ajax({
+              url:'http://localhost:8888/songs/'+songs[song].id,
+              method: 'delete'
+            });
+            document.getElementById(songs[song].id).remove();
+          });
+          document.getElementById("queue").appendChild(row);
+        }
+      }
+    }
+  };
+  xhttp.open("GET","http://localhost:8888/songs",true);
+  xhttp.send();
+
+};
+</script>
 
 <script id="user-profile-template" type="text/x-handlebars-template">
   <h1>Logged in as {{display_name}}</h1>
@@ -129,7 +181,15 @@
       }
       return hashParams;
     }
-
+    $.ajax({
+      type: 'POST',
+      cache: false,
+      contentType: 'application/json',
+      dataType: "json",
+      success: function (result) {
+        console.log(result);
+      }
+    });
     var userProfileSource = document.getElementById('user-profile-template').innerHTML,
             userProfileTemplate = Handlebars.compile(userProfileSource),
             userProfilePlaceholder = document.getElementById('user-profile');
@@ -189,22 +249,8 @@
 
     }
   })();
-  const loadSongs = () =>{
-    const  xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function(){
-      if(this.readyState==4 && this.status == 200 ){
-        const  songs = JSON.parse(xhttp.responseText);
-        for(let song of songs) {
-          var x = "<h2>Playlist: " + song.id + "</h2>";
-          document.getElementById("playlist").innerHTML = document.getElementById("playlist").innerHTML + x;
-        }
-      }
-    };
-    xhttp.open("GET","http://localhost:8888/songs",true);
-    xhttp.send();
 
-  };
-  loadSongs();
+  // loadSongs();
 
 
 </script>

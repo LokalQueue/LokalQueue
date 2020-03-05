@@ -13,6 +13,12 @@ var app = express();
 var tokenuse = null;
 let did =[];
 let playing = false;
+const jsdom = require('jsdom');
+const {JSDOM} = jsdom;
+const dom = new JSDOM(``,{
+    url: "http://localhost:8888",
+    contentType: "text/html"
+})
 
 var generateRandomString = function(length) {
     var text = '';
@@ -129,7 +135,7 @@ app.put('/rateup/:id',function (req,res) {
     var idx = 0;
     let id = req.params.id;
     console.log(id);
-    while(idx<did.length){
+    while(idx<songs.length){
         console.log(songs[idx].id);
 
         if(songs[idx].id == id){
@@ -146,7 +152,7 @@ app.put('/ratedown/:id',function (req,res) {
     var idx = 0;
     let id = req.params.id;
     console.log(id);
-    while(idx<did.length){
+    while(idx<songs.length){
         console.log(songs[idx].id);
 
         if(songs[idx].id == id){
@@ -211,9 +217,7 @@ app.post('/song',function (req,res) {
         console.log(req.body);
         var SongId = req.body;
         songs.push(SongId);
-        res.send("Added Id");
-        
-
+        res.send("Added in");
     }
     else{
         let show = did[0];
@@ -247,7 +251,21 @@ app.get('/getdid',function (req,res) {
     res.json(did);
 })
 app.get('/songs',function (req,res) {
+
     res.json(songs);
+});
+app.delete('/songs/:id',function (req,res) {
+    var idx = 0;
+    let id = req.params.id;
+    console.log(id);
+    while(idx<songs.length){
+
+        if(songs[idx].id == id){
+           songs.splice(idx,1);
+        }
+        idx++;
+    }
+   res.end();
 });
 
 console.log('Listening on localhost 8888');
