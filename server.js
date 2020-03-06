@@ -216,8 +216,20 @@ app.post('/song',function (req,res) {
     if(playing == false) {
         console.log(req.body);
         var SongId = req.body;
-        songs.push(SongId);
-        res.send("Added in");
+        let exists = false;
+        for(idx=0;idx<songs.length;idx++){
+            if(SongId.id == songs[idx].id){
+                exists = true;
+            }
+        }
+        if(exists == false){
+            songs.push(SongId);
+            res.send("Added in");
+        }
+        else{
+            console.log("Song already exists");
+            res.send("Already exists");
+        }
     }
     else{
         let show = did[0];
@@ -235,8 +247,21 @@ app.post('/song',function (req,res) {
                 console.log(error);
             }
         });
-        res.send("Added in while playing");
-        songs.push(req.body)
+        let exists = false;
+        for(idx=0;idx<songs.length;idx++){
+            if(s == songs[idx].id){
+                exists = true;
+            }
+        }
+        if(exists == false){
+            res.send("Added in while playing");
+            songs.push(req.body)
+        }
+        else{
+            console.log("Song already exists");
+            res.send("Already exists");
+        }
+
     }
 });
 app.post('/did',function (req,res) {

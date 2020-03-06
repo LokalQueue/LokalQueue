@@ -83,6 +83,7 @@ const loadSongs = () =>{
               url:'http://localhost:8888/songs/'+songs[song].id,
               method: 'delete'
             });
+            songslength = songs.length -1;
             document.getElementById(songs[song].id).remove();
           });
           document.getElementById("queue").appendChild(row);
